@@ -19,16 +19,16 @@ Default collector is `conj'. Default `errors' is {}"
 
 (defn- merge-errors
   "Add errors to any existing errors for key in coll."
-  [coll key & errors]
+  [coll [key & errors]]
   (assoc coll key (concat errors (get coll key))))
 
 (defn keyed-validations
   [& fns]
-  (validations* conj {} fns))
+  (validations* merge-errors {} fns))
 
 (defn validate
   [test err]
-  "Make a validator from a test. If (test args) false,
+  "Make a validator from a test. If (test args*) false,
 return err"
   (fn [& args]
     (if-not (apply test args)
@@ -43,13 +43,15 @@ returns err if pred doesnt match the value if k in object."
 (deftest test-check
   (let [check (keyed-validations
                (validate-val :name seq [:name :empty])
-               (validate-val :num integer? [:num :not-a-number]))]
-    (let [errors (check {:name ""
-                         :num "not a number"})]
-      (println errors)
-      (is (= (:name errors) [:empty]))
-      (is (= (:num errors) [:not-a-number])))
-    (let [errors (check {:name "ok"
-                         :num "not a number"})]
-      (is (= errors {:num [:not-a-number]})))))
+               (validate-val :num integer? [:num :not-a-number])
+               (validate #(= "my secret" (:secret (:hidden %))) [:secret :no-secret]))]
+    (is (= (check {:name ""
+                   :num "not a number"
+                   :hidden {:secret "my secret"}})
+             {:name [:empty]
+              :num  [:not-a-number]}))
+    (is (= (check {:name "ok"
+                   :num "not a number"})
+             {:num [:not-a-number]
+              :secret [:no-secret]}))))
 
