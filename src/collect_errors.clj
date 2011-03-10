@@ -2,20 +2,15 @@
   (:use clojure.test))
 
 (defn validations*
-  "Create a validator that collects any errors into errors.
-Default collector is `conj'. Default `errors' is {}"
-  ([collector errors fns]
-     (fn [& args]
-       (reduce (fn [es f]
-                 (if-let [e (apply f args)]
-                   (collector es e)
-                   es))
-               errors
-               fns)))
-  ([errors fns]
-     (validations* conj errors fns))
-  ([fns]
-     (validations* conj {} fns)))
+  "Create a validator that collects any errors into errors using (collector errors error)."
+  [collector errors fns]
+  (fn [& args]
+    (reduce (fn [es f]
+              (if-let [e (apply f args)]
+                (collector es e)
+                es))
+            errors
+            fns)))
 
 (defn- merge-errors
   "Add errors to any existing errors for key in coll."
