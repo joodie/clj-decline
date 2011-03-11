@@ -54,4 +54,4 @@ returns errors if pred doesnt match the value if k in object."
 validations should return a map of key -> set of errors or nil, which
   you can construct using the `err' function."
   [& fns]
-  (validations* merge-errors {} fns))
+  (validations* merge-errors nil fns))

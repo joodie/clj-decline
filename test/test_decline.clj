@@ -37,7 +37,12 @@
     (is (= (check {:name "ok"
                    :num "not a number"})
              {:num #{:not-a-number}
-              :secret #{:no-secret}}))))
+              :secret #{:no-secret}}))
+
+    (is (= (check {:name "name"
+                  :num 12
+                   :hidden {:secret "my secret"}})
+           nil))))
 
 (deftest test-multiple-errors
   (let [check (validate-val :name seq
@@ -47,3 +52,4 @@
            nil))
     (is (= (check {:foo :bar})
            {:val #{:required :seq}}))))
+
