@@ -17,6 +17,9 @@ to look for examples is the test code.
 To prevent havock, I won't be releasing SNAPSHOT releases. Instead,
 there will as many minor releases as needed to push changes/fixes.
 
+When updating to a new version, check the CHANGES file to see if
+anything has changed in the API.
+
 The releases are on clojars, so you can use your favorite build
 tool. See http://clojars.org/clj-decline for the spec.
 
