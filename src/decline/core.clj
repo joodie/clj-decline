@@ -6,22 +6,10 @@
   [key & msgs]
   {key (into #{} msgs)})
 
-(defn- merge-errors*
-  "Merge error sets"
-  ([set]
-     set)
-  ([set1 set2]
-     (reduce (fn [coll [key msgs]]
-               (assoc coll key (if-let [existing (get coll key)]
-                                 (into msgs existing)
-                                 msgs)))
-             set1
-             set2)))
-
 (defn merge-errors
   "Merge error sets"
-  ([set & sets]
-     (reduce merge-errors* set sets)))
+  [& sets]
+  (reduce (partial merge-with (partial reduce conj)) sets))
 
 (defn validate
   "Make a validator from a test. If (test args*) is false,
@@ -30,7 +18,6 @@ return errors"
   (fn [& args]
     (if-not (apply test args)
       (apply merge-errors errors))))
-
 
 (defn validate-val
   "make a validator from a key k and a predicate.
