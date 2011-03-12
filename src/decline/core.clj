@@ -25,10 +25,8 @@ concat new messages."
 single validation function."
   [& fns]
   (fn [& args]
-    (reduce (fn [errors f]
-              (merge-errors errors (apply f args)))
-            nil
-            fns)))
+    (apply merge-errors
+           (map #(apply % args) fns))))
 
 (defn validation
   "Make a validation `v' from `predicate'. If (predicate args*) is false,

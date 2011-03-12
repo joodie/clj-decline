@@ -1,3 +1,7 @@
+Notes for next.release
+
+* even less code to worry about
+
 Notes for release 0.0.4
 
 * error sets are now maps of key -> seq instead of key -> set
