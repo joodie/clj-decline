@@ -1,3 +1,9 @@
+Notes for next.release
+
+* error sets are now maps of key -> seq instead of key -> set
+* removed (err) function.
+* validate-val now supports additional (ignored) arguments
+
 Notes for release 0.0.3
 
 * Added motivation rant and some more documentation.
