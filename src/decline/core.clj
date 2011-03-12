@@ -24,7 +24,7 @@ Messages and keys can be any type."
   "Merge error sets. If a key is already associated with messages,
 adds the new messages to that set."
   [& sets]
-  (reduce (partial merge-with (partial reduce conj)) sets))
+  (apply merge-with (partial reduce conj) sets))
 
 (defn validation
   "Make a validation `v' from `predicate'. If (predicate args*) is false,
