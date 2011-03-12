@@ -1,0 +1,61 @@
+** Why another validation library? **
+
+Well, why does validation suck so much?
+
+Of course, dealing with user input is annoying anyway.  But validation
+libraries always seem to want to do things in just the wrong way for
+the project you're working on.
+
+Let me count the ways:
+
+* They do too much. Session management? XSS detection? Javascript
+  validation? Form definitions? Bollocks. It will never work with the
+  code I've already got running in production and I'm not going to
+  drag in all of it just to get the core validation functions,
+  assuming I can even use them in my app.
+
+* Also, validation does not mean "force this input into another
+  type". That's not validation. Stick it somewhere else.
+
+* They assume too much. If you can only validate a single value in a
+  map, you're useless. I need to check if a frobniz has /either/ two
+  wheebles /or/ an odd number of crinks, and don't try to stop me.
+
+* I might need to validate something that /isn't/ a map. Maybe I want
+  to check two maps. Maybe I need to check a single string or a file
+  upload.
+
+* They still assume too much. This may come as a shock, but not
+  everyone speaks English on this planet. I have to support multiple
+  languages in the same web app. Give me more options than pre-defined
+  strings for errors, you lousy piece of American imperialist
+  software! People of the earth, throw off your shackles and your
+  "reality" TV shows!
+ 
+  Ahem.
+
+* Macros, macros, macros all over the place. Yes, macros are cool, but
+  no, I don't /want/ to stick every validation in a named var. If I
+  wanted that, I could (def some-name (make-validation ...)) so I
+  don't /need/ your macro anyway. I /want/ to use closures that
+  validate for this specific user and now you've stopped me.
+
+* Don't be passive agressive. Validation is a user-centric feature. If
+  I wanted to tell the user only their first error, I'd use
+  exceptions. Don't force the user to submit their form twenty times
+  until they've fixed all their mistakes. Give them as much
+  information as possible so they know what's going on.
+
+** So, how does clj-decline fix all that? **
+
+It doesn't. It just stays away from most of the above. clj-decline is
+simple. It validates arguments and returns errors. Everything else is
+up to the user or some other library. It's completely functional, has
+no macros, no built-in predicates, nothing binds it to a web framework
+or anything else, and errors / messages can be anything you like. The
+only decision I made is that errors are grouped by key (which can also
+be anything you like).
+
+Enjoy!
+
+Joost.
