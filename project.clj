@@ -1,5 +1,5 @@
-(defproject clj-decline "0.0.2"
-  :description "Validation library - test objects and collect reasons for rejection"
+(defproject clj-decline "0.0.3"
+  :description "Minimal, flexible validation library - test objects and collect reasons for rejection"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]]
   :dev-dependencies [[swank-clojure "1.3.0-SNAPSHOT"]])
