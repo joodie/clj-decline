@@ -17,6 +17,9 @@ to look for examples is the test code.
 To prevent havock, I won't be releasing SNAPSHOT releases. Instead,
 there will as many minor releases as needed to push changes/fixes.
 
+The releases are on clojars, so you can use your favorite build
+tool. See http://clojars.org/clj-decline for the spec.
+
 Copyright (C) 2011 Joost Diepenmaat, Zeekat Softwareontwikkeling
 
 joost@zeekat.nl
