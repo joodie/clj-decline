@@ -1,4 +1,4 @@
-Notes for next.release
+Notes for release 0.0.4
 
 * error sets are now maps of key -> seq instead of key -> set
 * removed (err) function.
