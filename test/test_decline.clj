@@ -14,8 +14,8 @@
          {:e1 #{:msg1 :msg3}
           :e2 #{:msg2}})))
 
-(deftest test-validate
-  (let [v (validate even? (err :num :not-even))]
+(deftest test-validation
+  (let [v (validation even? (err :num :not-even))]
     (is (= (v 1)
            (err :num :not-even)))
     (is (= (v 2)
@@ -27,7 +27,7 @@
                              (err :name :empty))
                (validate-val :num integer?
                              (err :num :not-a-number))
-               (validate #(= "my secret" (:secret (:hidden %)))
+               (validation #(= "my secret" (:secret (:hidden %)))
                          (err :secret :no-secret)))]
     (is (= (check {:name ""
                    :num "not a number"
@@ -42,7 +42,8 @@
     (is (= (check {:name "name"
                   :num 12
                    :hidden {:secret "my secret"}})
-           nil))))
+           nil))
+    ))
 
 (deftest test-multiple-errors
   (let [check (validate-val :name seq
