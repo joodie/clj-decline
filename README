@@ -1,9 +1,3 @@
-Notes for release 0.0.2
-
-Bugfix update
-
-Notes for release 0.0.1
-
 clj-decline is a validation library that hopefully will turn out to be
 simple enough to be useful.
 

@@ -1,0 +1,13 @@
+Notes for release 0.0.2
+
+Bugfix release
+
+Notes for release 0.0.1
+
+clj-decline is a validation library that hopefully will turn out to be
+simple enough to be useful.
+
+clj-decline does not place limits on what it can validate. It does not
+restrict itself to web and will never do so. With regards to the kind
+of rejection messages (errors) it can generate, the only restriction
+is that they should be indexed by a key.
