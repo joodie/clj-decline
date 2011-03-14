@@ -38,7 +38,7 @@ single validation function."
 
 (defn validate-val
   "Make a validation that takes one or more arguments given a `key'
-and a `predicate'. Returns errors if `predicate' doesnt match the
+and a `predicate'. Returns `errors' if `predicate' is false for the
 value associated with `key' in the first argument.
 
 The reason additional arguments are ignored is that this makes it
