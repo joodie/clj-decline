@@ -12,7 +12,7 @@ You can construct a validation from a predicate using the `validation'
 function.
 
 Validations that take the same arguments can be merged using the
-`validations' function."})
+`validations' and `validate-some' functions."})
 
 (defn merge-errors
   "Merge error sets. If a key is already associated with messages,
