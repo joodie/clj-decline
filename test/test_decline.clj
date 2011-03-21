@@ -44,8 +44,7 @@
     (is (= (check {:name "name"
                    :num 12
                    :hidden {:secret "my secret"}})
-           nil))
-    ))
+           nil))))
 
 (deftest test-multiple-errors
   (let [check (validate-val :name seq
