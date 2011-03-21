@@ -2,6 +2,7 @@ Notes for next.release
 
 * even less code to worry about
 * slight documentation improvements
+* added validate-some function
 
 Notes for release 0.0.4
 

@@ -73,3 +73,12 @@
            {:name  [:blank]
             :fixed [:cannot-change]}))))
 
+(deftest test-some
+  (let [check (validations
+               (validate-some
+                (validation seq {:err [:seq]})
+                (validation string? {:err [:string]}))
+               (validation #(< 3 (count %)) {:err [:count]}))]
+    (is (= (check []) {:err [:seq :count]}))
+    (is (= (check [1 2 3 4]) {:err [:string]}))
+    (is (= (check "1234") nil))))

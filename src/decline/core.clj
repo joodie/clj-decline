@@ -22,11 +22,17 @@ concat new messages."
 
 (defn validations
   "Merge validations `fns' that all take the same arguments into a
-single validation function."
+single validation function. Runs all validations."
   [& fns]
   (fn [& args]
     (apply merge-errors
            (map #(apply % args) fns))))
+
+(defn validate-some
+  "Merge validations `fns', returns the first error encountered."
+  [& fns]
+  (fn [& args]
+    (some #(apply % args) fns)))
 
 (defn validation
   "Make a validation `v' from `predicate'. If (predicate args*) is false,
