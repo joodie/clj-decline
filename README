@@ -15,7 +15,7 @@ For now, the functions are all documented inline, and the best place
 to look for examples is the test code.
 
 To prevent havock, I won't be releasing SNAPSHOT releases. Instead,
-there will as many minor releases as needed to push changes/fixes.
+there will be as many minor releases as needed to push changes/fixes.
 
 When updating to a new version, check the CHANGES file to see if
 anything has changed in the API.
