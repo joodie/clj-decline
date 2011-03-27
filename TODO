@@ -1,0 +1,9 @@
+TODO:
+
+Loads of examples. See
+   http://twitter.com/kumarshantanu/status/46971107818995712
+yes, I noticed that.
+
+Also, I think the API seems pretty good right now and there doesn't
+seem to be much more to add. Maybe remove the warnings regarding API
+changes from the README and work on a 1.0.0 release.
