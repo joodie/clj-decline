@@ -81,3 +81,71 @@
     (is (= (check []) {:err [:seq :count]}))
     (is (= (check [1 2 3 4]) {:err [:string]}))
     (is (= (check "1234") nil))))
+
+(deftest test-parent-key
+  (let [error {:num [:not-a-number]}
+        nested-errors {:num [:not-a-number]
+                       [:nested2 :name] [:empty]}
+        add-parent-key (ns-resolve 'decline.core 'add-parent-key)]
+    (is (= (add-parent-key error :nested)
+           {[:nested :num] [:not-a-number]}))
+    (is (= (add-parent-key nested-errors :nested1)
+           {[:nested1 :num] [:not-a-number]
+            [:nested1 :nested2 :name] [:empty]}))
+    (is (= (add-parent-key nil :nested) nil))))
+
+(deftest test-nested
+  (let [check (validations
+               (validate-val :name seq
+                             {:name [:empty]})
+               (validate-nested :nested
+                                (validate-val :num integer?
+                                              {:num [:not-a-number]})))]
+    (is (= (check {:name "name"
+                   :nested {:num 1}}) nil))
+    (is (= (check {:name ""
+                   :nested {:num 1}}) {:name [:empty]}))
+    (is (= (check {:name ""
+                   :nested {:num "not a number"}})
+           {:name [:empty]
+            [:nested :num] [:not-a-number]}))))
+
+(deftest test-spec
+  (let [not-empty? (fn [param] (validate-val param seq
+                                           {param [:empty]}))
+        int? (fn [param] (validate-val param integer?
+                                      {param [:not-a-number]}))
+        spec {:name not-empty?
+              :num int?}
+        check (validation-spec spec)]
+    (is (= (check {:name "name"
+                   :num 1}) nil))
+    (is (= (check {:name ""
+                   :num "not a number"})
+           {:name [:empty] :num [:not-a-number]}))
+    (let [spec-nested {:name not-empty?
+                       :num int?
+                       :nested1 {:val1 int?
+                                 :num1 int?
+                                 :nested2 {:name2 not-empty?
+                                           :val2 int?}}}
+          check (validation-spec spec-nested)]
+      (is (= (check {:name "name"
+                     :num 1
+                     :nested1 {:val1 2
+                               :num1 3
+                               :nested2 {:name2 "name"
+                                         :val2 4}}})
+             nil))
+      (is (= (check {:name ""
+                 :num "not-a-number"
+                 :nested1 {:val1 "not-a-number"
+                           :num1 "not-a-number"
+                           :nested2 {:name2 ""
+                                     :val2 "not-a-number"}}})
+             {:name [:empty]
+              :num [:not-a-number]
+              [:nested1 :val1] [:not-a-number]
+              [:nested1 :num1] [:not-a-number]
+              [:nested1 :nested2 :name2] [:empty]
+              [:nested1 :nested2 :val2] [:not-a-number]})))))
