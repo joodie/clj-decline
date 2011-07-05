@@ -149,3 +149,19 @@
               [:nested1 :num1] [:not-a-number]
               [:nested1 :nested2 :name2] [:empty]
               [:nested1 :nested2 :val2] [:not-a-number]})))))
+
+(deftest test-spec-some
+  (let [not-empty? (fn [param] (validate-val param seq
+                                            {param [:empty]}))
+        uppercase? (fn [param]
+                     (validate-val param
+                      (fn [s] (every? #(java.lang.Character/isUpperCase %) s))
+                      {param [:not-uppercase]}))
+        spec {:name [not-empty? uppercase?]}
+        check (validation-spec spec)]
+    (is (= (check {:name ""})
+           {:name [:empty]}))
+    (is (= (check {:name "name"})
+           {:name [:not-uppercase]}))
+    (is (= (check {:name "NAME"})
+           nil))))

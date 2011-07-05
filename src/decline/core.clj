@@ -83,12 +83,17 @@ where the typical case is just to test the new object."
      key)))
 
 (defn- flat-validation-spec [spec]
-  (let [no-op (fn [x] nil)]
+  (let [no-op (fn [x] nil)
+        vector-of-fns? #(and (vector? %)
+                                (every? fn? %))]
     (apply validations
-           (map (fn [[param validation-fn]]
-                  (if (fn? validation-fn)
-                    (validation-fn param)
-                    no-op)) spec))))
+           (map (fn [[param value]]
+                  (if (fn? value)
+                    (value param)
+                    (if vector-of-fns?
+                      (apply validate-some
+                             (map #(% param) value))
+                      no-op))) spec))))
 
 (defn validation-spec [spec]
   "Allows to specify the validations in an ordinary map:
@@ -112,13 +117,15 @@ where the typical case is just to test the new object."
 
    The error key for a nested element is the path to it in the
    map, so it can be used as second parameter for get-in for
-   example."
+   example. If the value of a map entry is a vector of validation
+   functions (something like {:name [not-empty? uppercase?]}) then
+   these functions are composed via validate-some."
   [spec]
-  (let [kv-value-is-a-map? #(and (vector? %)
+  (let [nested-spec? #(and (vector? %)
                                  (map? (second %)))
         flat-spec (postwalk
                    (fn [x]
-                     (if (kv-value-is-a-map? x)
+                     (if (nested-spec? x)
                        (let [[k v] x
                              v (fn [param]
                                  (validate-nested
