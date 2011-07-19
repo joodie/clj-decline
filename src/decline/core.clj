@@ -82,18 +82,82 @@ where the typical case is just to test the new object."
      (validate-fn (get m key))
      key)))
 
+(defn- wrap-required [spec f]
+  (validations
+   (fn [x]
+     (let [spec-keys (keys spec)
+           missing-keys (filter #(= ::not-found (get x % ::not-found)) spec-keys)
+           required-errors
+               (into {} (map #(identity [% [:required]]) missing-keys)) ]
+       (when (seq required-errors) required-errors)
+       ))
+   f))
+
+(defn- wrap-not-specified [spec f]
+  (validations
+   (fn [x]
+     (let [spec-keys (into #{} (keys spec))
+           not-specified-keys
+               (map key (remove #(spec-keys (key %)) x))
+           not-specified-errors
+               (into {} (map #(identity [% [:not-specified]]) not-specified-keys))]
+       (when (seq not-specified-keys) not-specified-errors)
+       ))
+   f))
+
+(defn wrap-optional [spec f]
+  (let [remove-questionmark #(keyword (apply str (drop 1 (name %))))
+        optional-keyword? #(and (keyword? (key %))
+                                (.startsWith (name (key %)) "?"))
+        optional-keywords (into #{}
+                                (map
+                                 (comp remove-questionmark key)
+                                 (filter optional-keyword? spec)))
+        optional-spec-keys
+           (into #{}
+                 (map key (filter optional-keyword? spec)))
+        spec
+           (into {} (map
+                      #(let [[k v] %]
+                         (if (optional-keyword? %)
+                           [(remove-questionmark k)
+                            v]
+                           %)) spec))
+        remove-required-errors
+           (fn [result]
+             (into {}
+                   (remove nil?
+                           (map #(let [[k v] %]
+                                   (if (and (keyword? k)
+                                            (optional-keywords k))
+                                     (if (some (fn [error]
+                                                 (= error :required)) v)
+                                       nil
+                                       %)
+                                     %)) result))))
+        empty-map->nil #(if (seq %) % nil)]
+    (validations
+     (comp empty-map->nil remove-required-errors (f spec)))))
+
 (defn- flat-validation-spec [spec]
   (let [no-op (fn [x] nil)
         vector-of-fns? #(and (vector? %)
-                                (every? fn? %))]
-    (apply validations
-           (map (fn [[param value]]
-                  (if (fn? value)
-                    (value param)
-                    (if vector-of-fns?
-                      (apply validate-some
-                             (map #(% param) value))
-                      no-op))) spec))))
+                             (every? fn? %))]
+    (wrap-optional
+     spec
+     (fn [spec]
+       (wrap-not-specified
+        spec
+        (wrap-required
+         spec
+         (apply validations
+                (map (fn [[param value]]
+                       (if (fn? value)
+                         (value param)
+                         (if vector-of-fns?
+                           (apply validate-some
+                                  (map #(% param) value))
+                           no-op))) spec))))))))
 
 (defn validation-spec [spec]
   "Allows to specify the validations in an ordinary map:
@@ -119,7 +183,28 @@ where the typical case is just to test the new object."
    map, so it can be used as second parameter for get-in for
    example. If the value of a map entry is a vector of validation
    functions (something like {:name [not-empty? uppercase?]}) then
-   these functions are composed via validate-some."
+   these functions are composed via validate-some.
+   All entries in a spec are required by default. If a map which
+   should be validated don't contain all keys of the spec map, then
+   the :required error is added to the error sequence of the
+   corresponding key in the validation result:
+
+   >(def check (validation-spec {:name not-empty?}))
+   >(check {})
+   {:name (:required :empty)}
+
+   On the other hand, all additional entries in the map which should
+   be validated lead to a :not-specified error:
+   >(check {:name \"name\" :unknown 123})
+   {:unknown [:not-specified]}
+
+   Keys can also be optional, therefor its keyword in the spec map
+   has to start with a questionmark:
+
+   >(def check (validation-spec {:?name not-empty? :num int?}))
+   >(= (check {:num 1}) nil)
+   true
+   "
   [spec]
   (let [nested-spec? #(and (vector? %)
                                  (map? (second %)))

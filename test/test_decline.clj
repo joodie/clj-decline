@@ -110,12 +110,21 @@
            {:name [:empty]
             [:nested :num] [:not-a-number]}))))
 
+(def not-empty? (fn [param] (validate-val param seq
+                                         {param [:empty]})))
+
+(def int? (fn [param] (validate-val param integer?
+                                      {param [:not-a-number]})))
+
+(def spec-nested {:name not-empty?
+                       :num int?
+                       :nested1 {:val1 int?
+                                 :num1 int?
+                                 :nested2 {:name2 not-empty?
+                                           :val2 int?}}})
+
 (deftest test-spec
-  (let [not-empty? (fn [param] (validate-val param seq
-                                           {param [:empty]}))
-        int? (fn [param] (validate-val param integer?
-                                      {param [:not-a-number]}))
-        spec {:name not-empty?
+  (let [spec {:name not-empty?
               :num int?}
         check (validation-spec spec)]
     (is (= (check {:name "name"
@@ -123,13 +132,7 @@
     (is (= (check {:name ""
                    :num "not a number"})
            {:name [:empty] :num [:not-a-number]}))
-    (let [spec-nested {:name not-empty?
-                       :num int?
-                       :nested1 {:val1 int?
-                                 :num1 int?
-                                 :nested2 {:name2 not-empty?
-                                           :val2 int?}}}
-          check (validation-spec spec-nested)]
+    (let [check (validation-spec spec-nested)]
       (is (= (check {:name "name"
                      :num 1
                      :nested1 {:val1 2
@@ -148,12 +151,11 @@
               [:nested1 :val1] [:not-a-number]
               [:nested1 :num1] [:not-a-number]
               [:nested1 :nested2 :name2] [:empty]
-              [:nested1 :nested2 :val2] [:not-a-number]})))))
+              [:nested1 :nested2 :val2] [:not-a-number]}))
+      )))
 
 (deftest test-spec-some
-  (let [not-empty? (fn [param] (validate-val param seq
-                                            {param [:empty]}))
-        uppercase? (fn [param]
+  (let [uppercase? (fn [param]
                      (validate-val param
                       (fn [s] (every? #(java.lang.Character/isUpperCase %) s))
                       {param [:not-uppercase]}))
@@ -165,3 +167,72 @@
            {:name [:not-uppercase]}))
     (is (= (check {:name "NAME"})
            nil))))
+
+; all fields in a validation-spec are required by default
+(deftest test-required-default
+  (let [spec {:name not-empty?}
+        check (validation-spec spec)]
+    (is (= (check {})
+           {:name [:required :empty]})))
+  (let [check (validation-spec spec-nested)]
+    (is (= (check {:num 1
+                   :nested1 {}})
+           {:name [:required :empty]
+            [:nested1 :val1] [:required :not-a-number]
+            [:nested1 :num1] [:required :not-a-number]
+            [:nested1 :nested2] [:required]
+            [:nested1 :nested2 :name2] [:required :empty]
+            [:nested1 :nested2 :val2] [:required :not-a-number]}))))
+
+; all fields which keyword starts with a ? should be optional
+(deftest test-optional
+  (let [spec {:?name not-empty?
+              :num int?}
+        check (validation-spec spec)]
+    (is (= (check {:name "name"
+                   :num 1})
+           nil))
+    (is (= (check {:name "name"
+                   :num "not-a-number"})
+           {:num [:not-a-number]}))
+    (is (= (check {:num 1})
+           nil))
+    )
+  (let [spec {:?name not-empty?
+              :num int?
+              :nested1 {:?num1 int?
+                        :val1 not-empty?}}
+        check (validation-spec spec)]
+    (is (= (check {:num 1
+                   :nested1 {:val1 "value"}})
+           nil))
+    (is (= (check {:name ""
+                   :num 1
+                   :nested1 {:num1 "not-a-number"}})
+           {:name [:empty]
+            [:nested1 :num1] [:not-a-number]
+            [:nested1 :val1] [:required :empty]}))
+    (comment
+      ;TODO: nested maps like :nested1 should can be optional too
+      (is (= (check {:name ""
+                   :num 1
+                   :?nested1 {:num1 "not-a-number"}})
+           {:name [:empty]})))))
+
+; all fields which are not specified in the validation spec 
+; are a :not-specified error
+(deftest test-not-specified
+  (let [spec {:name not-empty?}
+        check (validation-spec spec)]
+    (is (= (check {:name "name"
+                   :unknown 123})
+           {:unknown [:not-specified]})))
+  (let [check (validation-spec spec-nested)]
+    (is (= (check {:name "name"
+                   :num 1
+                   :nested1 {:val1 2
+                             :num1 3
+                             :nested2 {:name2 "name"
+                                       :val2 4
+                                       :unknown "unknown"}}})
+           {[:nested1 :nested2 :unknown] [:not-specified]}))))
