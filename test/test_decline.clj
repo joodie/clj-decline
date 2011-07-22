@@ -173,16 +173,16 @@
   (let [spec {:name not-empty?}
         check (validation-spec spec)]
     (is (= (check {})
-           {:name [:required :empty]})))
+           {:name [:entry-required :empty]})))
   (let [check (validation-spec spec-nested)]
     (is (= (check {:num 1
                    :nested1 {}})
-           {:name [:required :empty]
-            [:nested1 :val1] [:required :not-a-number]
-            [:nested1 :num1] [:required :not-a-number]
-            [:nested1 :nested2] [:required]
-            [:nested1 :nested2 :name2] [:required :empty]
-            [:nested1 :nested2 :val2] [:required :not-a-number]}))))
+           {:name [:entry-required :empty]
+            [:nested1 :val1] [:entry-required :not-a-number]
+            [:nested1 :num1] [:entry-required :not-a-number]
+            [:nested1 :nested2] [:entry-required]
+            [:nested1 :nested2 :name2] [:entry-required :empty]
+            [:nested1 :nested2 :val2] [:entry-required :not-a-number]}))))
 
 ; all fields which keyword starts with a ? should be optional
 (deftest test-optional
@@ -211,7 +211,7 @@
                    :nested1 {:num1 "not-a-number"}})
            {:name [:empty]
             [:nested1 :num1] [:not-a-number]
-            [:nested1 :val1] [:required :empty]}))
+            [:nested1 :val1] [:entry-required :empty]}))
     (comment
       ;TODO: nested maps like :nested1 should can be optional too
       (is (= (check {:name ""
@@ -226,7 +226,7 @@
         check (validation-spec spec)]
     (is (= (check {:name "name"
                    :unknown 123})
-           {:unknown [:not-specified]})))
+           {:unknown [:entry-not-specified]})))
   (let [check (validation-spec spec-nested)]
     (is (= (check {:name "name"
                    :num 1
@@ -235,4 +235,4 @@
                              :nested2 {:name2 "name"
                                        :val2 4
                                        :unknown "unknown"}}})
-           {[:nested1 :nested2 :unknown] [:not-specified]}))))
+           {[:nested1 :nested2 :unknown] [:entry-not-specified]}))))

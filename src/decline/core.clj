@@ -19,7 +19,7 @@ Validations that take the same arguments can be merged using the
   "Merge error sets. If a key is already associated with messages,
 concat new messages."
   [& sets]
-  (apply merge-with concat sets))
+  (apply merge-with (comp vec concat) sets))
 
 (defn validations
   "Merge validations `fns' that all take the same arguments into a
@@ -88,7 +88,7 @@ where the typical case is just to test the new object."
      (let [spec-keys (keys spec)
            missing-keys (filter #(= ::not-found (get x % ::not-found)) spec-keys)
            required-errors
-               (into {} (map #(identity [% [:required]]) missing-keys)) ]
+               (into {} (map #(identity [% [:entry-required]]) missing-keys)) ]
        (when (seq required-errors) required-errors)
        ))
    f))
@@ -100,7 +100,7 @@ where the typical case is just to test the new object."
            not-specified-keys
                (map key (remove #(spec-keys (key %)) x))
            not-specified-errors
-               (into {} (map #(identity [% [:not-specified]]) not-specified-keys))]
+               (into {} (map #(identity [% [:entry-not-specified]]) not-specified-keys))]
        (when (seq not-specified-keys) not-specified-errors)
        ))
    f))
@@ -131,7 +131,7 @@ where the typical case is just to test the new object."
                                    (if (and (keyword? k)
                                             (optional-keywords k))
                                      (if (some (fn [error]
-                                                 (= error :required)) v)
+                                                 (= error :entry-required)) v)
                                        nil
                                        %)
                                      %)) result))))
