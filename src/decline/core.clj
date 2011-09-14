@@ -1,5 +1,5 @@
 (ns decline.core
-  {:doc "clj-decline: A dynamic validation system
+  "clj-decline: A dynamic validation system
 
 clj-decline is built on two concepts: error sets and validations.
 
@@ -12,7 +12,7 @@ You can construct a validation from a predicate using the `validation'
 function.
 
 Validations that take the same arguments can be merged using the
-`validations' and `validate-some' functions."})
+`validations' and `validate-some' functions.")
 
 (defn merge-errors
   "Merge error sets. If a key is already associated with messages,
