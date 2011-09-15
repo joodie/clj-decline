@@ -8,11 +8,11 @@ is that they should be indexed by a key.
 
 Read the RANT for the long story.
 
-** This is still very much a work in progress - expect major breaking
-changes in the next couple of releases **
-
 For now, the functions are all documented inline, and the best place
 to look for examples is the test code.
+
+An online copy of the inline documentation is at
+http://joodie.github.com/clj-decline/
 
 To prevent havock, I won't be releasing SNAPSHOT releases. Instead,
 there will be as many minor releases as needed to push changes/fixes.
